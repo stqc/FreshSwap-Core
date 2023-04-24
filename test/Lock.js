@@ -331,7 +331,7 @@ describe("FreshSwap Tests", async ()=> {
 
   it("Should allow buying and selling of tokens once LP is added and not mint a DAO token if the invested amount is below the DAO threshold",async ()=>{
     await USD.connect(testAC2).approve(Pool.address,ethers.utils.parseEther("50"));
-    var x =await Pool.connect(testAC2).buyToken_Qdy(ethers.utils.parseEther("50"));
+    var x =await Pool.connect(testAC2).buyToken_Qdy(ethers.utils.parseEther("50"),testAC2.address);
     x= await x.wait();
     console.log("gas used:",x.gasUsed*x.effectiveGasPrice, x.gasUsed);
     await expect(USD.balanceOf(Pool.address)>ethers.utils.parseEther("20000")).to.equal(true);
@@ -342,12 +342,12 @@ describe("FreshSwap Tests", async ()=> {
   })
 
   it("Should not allow purchasing more than 85% of the tokens in the Pool", async ()=>{
-    await expect(Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("20000"))).to.be.revertedWith("LOW LP");
+    await expect(Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("20000"),testAC3.address)).to.be.revertedWith("LOW LP");
   })
 
   it("Should mint a DAO token for purchasing more than the threshold", async()=>{
     await USD.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("300"));
-    await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("300"));
+    await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("300"),testAC3.address);
     await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
     await expect(await Pool.totalSupply()).to.equal("2");
     await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
@@ -366,7 +366,7 @@ describe("FreshSwap Tests", async ()=> {
 
   it("should not mint a new DAO token when a wallet already has a DAO token",async()=>{
     await USD.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("1000"));
-    await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("1000"));
+    await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("1000"),testAC3.address);
     await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
     await expect(await Pool.totalSupply()).to.equal("2");
     await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
@@ -374,7 +374,7 @@ describe("FreshSwap Tests", async ()=> {
 
   it("should not burn the DAO token if invested amount is still greater than the DAO threshold after selling", async()=>{
     await TestToken.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("100"));
-    await Pool.connect(testAC3).sellToken_qLx(ethers.utils.parseEther("100"));
+    await Pool.connect(testAC3).sellToken_qLx(ethers.utils.parseEther("100"),testAC3.address);
     await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
     await expect(await Pool.totalSupply()).to.equal("2");
     await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
@@ -382,12 +382,12 @@ describe("FreshSwap Tests", async ()=> {
 
   it("should burn the DAO token if invested amount goes below the DAO threshold after selling", async()=>{
     await USD.connect(testAC4).approve(Pool.address,ethers.utils.parseEther("500"));
-    await Pool.connect(testAC4).buyToken_Qdy(ethers.utils.parseEther("500"));
+    await Pool.connect(testAC4).buyToken_Qdy(ethers.utils.parseEther("500"),testAC4.address);
     await expect(await Pool.totalSupply()).to.equal("3");
     await expect(await Pool.balanceOf(testAC4.address)).to.equal("1");
     await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
     await TestToken.connect(testAC4).approve(Pool.address,ethers.utils.parseEther("400"));
-    await Pool.connect(testAC4).sellToken_qLx(ethers.utils.parseEther("400"));
+    await Pool.connect(testAC4).sellToken_qLx(ethers.utils.parseEther("400"),testAC4.address);
     await expect(await Pool.balanceOf(testAC4.address)).to.equal("1");
     await expect(await Pool.totalSupply()).to.equal("3");
     await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
@@ -404,12 +404,12 @@ describe("FreshSwap Tests", async ()=> {
     await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
     await expect(Pool.connect(testAC2).removeLP()).to.be.reverted;
     await USD.connect(testAC6).approve(Pool.address,"1000");
-    await expect(Pool.connect(testAC6).buyToken_Qdy("2")).to.be.revertedWith("TRADE DISABLED");
+    await expect(Pool.connect(testAC6).buyToken_Qdy("2",testAC6.address)).to.be.revertedWith("TRADE DISABLED");
     await Pool.connect(testAC3).vote("1");
     await Pool.connect(testAC2).vote("1");
     await USD.connect(testAC6).approve(Pool.address,"10000");
     await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
-    await Pool.connect(testAC6).buyToken_Qdy("10000");
+    await Pool.connect(testAC6).buyToken_Qdy("10000",testAC6.address);
     await expect(await TestToken.balanceOf(testAC6.address)!=0).to.equal(true)
   })
 
@@ -471,7 +471,7 @@ it("should allow only FreshSwap owner to transfer money to their wallet",async()
 
 it("Should allow buying and selling of tokens once LP is added and not mint a DAO token if the invested amount is below the DAO threshold",async ()=>{
   await USD2.connect(testAC2).approve(Pool.address,ethers.utils.parseEther("50"));
-  var x =await Pool.connect(testAC2).buyToken_Qdy(ethers.utils.parseEther("50"));
+  var x =await Pool.connect(testAC2).buyToken_Qdy(ethers.utils.parseEther("50"),testAC2.address);
   x= await x.wait();
   console.log("gas used:",x.gasUsed*x.effectiveGasPrice, x.gasUsed);
   await expect(USD2.balanceOf(Pool.address)>ethers.utils.parseEther("20000")).to.equal(true);
@@ -481,12 +481,12 @@ it("Should allow buying and selling of tokens once LP is added and not mint a DA
 })
 
 it("Should not allow purchasing more than 85% of the tokens in the Pool", async ()=>{
-  await expect(Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("18000"))).to.be.revertedWith("LOW LP");
+  await expect(Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("18000"),testAC3.address)).to.be.revertedWith("LOW LP");
 })
 
 it("Should mint a DAO token for purchasing more than the threshold", async()=>{
   await USD2.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("300"));
-  await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("300"));
+  await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("300"),testAC3.address);
   await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
   await expect(await Pool.totalSupply()).to.equal("2");
   await expect(await USD.balanceOf(Tokenaddress)).to.equal("0");
@@ -505,7 +505,7 @@ it("should change the Sale tax only by owner(fail when going above 30%)and also 
 
 it("should not mint a new DAO token when a wallet already has a DAO token",async()=>{
   await USD2.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("1000"));
-  await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("1000"));
+  await Pool.connect(testAC3).buyToken_Qdy(ethers.utils.parseEther("1000"),testAC3.address);
   await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
   await expect(await Pool.totalSupply()).to.equal("2");
   await expect(await USD2.balanceOf(Tokenaddress)).to.equal("0");
@@ -513,7 +513,7 @@ it("should not mint a new DAO token when a wallet already has a DAO token",async
 
 it("should not burn the DAO token if invested amount is still greater than the DAO threshold after selling", async()=>{
   await TestToken.connect(testAC3).approve(Pool.address,ethers.utils.parseEther("100"));
-  await Pool.connect(testAC3).sellToken_qLx(ethers.utils.parseEther("100"));
+  await Pool.connect(testAC3).sellToken_qLx(ethers.utils.parseEther("100"),testAC3.address);
   await expect(await Pool.balanceOf(testAC3.address)).to.equal("1");
   await expect(await Pool.totalSupply()).to.equal("2");
   await expect(await USD2.balanceOf(Tokenaddress)).to.equal("0");
@@ -521,12 +521,12 @@ it("should not burn the DAO token if invested amount is still greater than the D
 
 it("should burn the DAO token if invested amount goes below the DAO threshold after selling", async()=>{
   await USD2.connect(testAC4).approve(Pool.address,ethers.utils.parseEther("500"));
-  await Pool.connect(testAC4).buyToken_Qdy(ethers.utils.parseEther("500"));
+  await Pool.connect(testAC4).buyToken_Qdy(ethers.utils.parseEther("500"),testAC4.address);
   await expect(await Pool.totalSupply()).to.equal("3");
   await expect(await Pool.balanceOf(testAC4.address)).to.equal("1");
   await expect(await USD2.balanceOf(Tokenaddress)).to.equal("0");
   await TestToken.connect(testAC4).approve(Pool.address,ethers.utils.parseEther("400"));
-  await Pool.connect(testAC4).sellToken_qLx(ethers.utils.parseEther("400"));
+  await Pool.connect(testAC4).sellToken_qLx(ethers.utils.parseEther("400"),testAC4.address);
   await expect(await Pool.balanceOf(testAC4.address)).to.equal("1");
   await expect(await Pool.totalSupply()).to.equal("3");
   await expect(await USD2.balanceOf(Tokenaddress)).to.equal("0");
@@ -543,12 +543,12 @@ it("should not allow any trade to go through while the voting is being conducted
   await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
   await expect(Pool.connect(testAC2).removeLP()).to.be.reverted;
   await USD2.connect(testAC6).approve(Pool.address,"1000");
-  await expect(Pool.connect(testAC6).buyToken_Qdy("2")).to.be.revertedWith("TRADE DISABLED");
+  await expect(Pool.connect(testAC6).buyToken_Qdy("2",testAC6.address)).to.be.revertedWith("TRADE DISABLED");
   await Pool.connect(testAC3).vote("1");
   await Pool.connect(testAC2).vote("1");
   await USD2.connect(testAC6).approve(Pool.address,"10000");
   await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
-  await Pool.connect(testAC6).buyToken_Qdy("10000");
+  await Pool.connect(testAC6).buyToken_Qdy("10000",testAC6.address);
   await expect(await TestToken.balanceOf(testAC6.address)!="0").to.equal(true)
 })
 
@@ -564,7 +564,7 @@ it("should allow Freshswap to disapprove emergency withdraw when 3 days have pas
   //await expect(await USD2.balanceOf(Pool.address)).to.be.equal("0");
   console.log(await USD2.balanceOf(Pool.address)/1e18);
   await USD2.connect(testAC6).approve(Pool.address,"1000");
-  await Pool.connect(testAC6).buyToken_Qdy("2");
+  await Pool.connect(testAC6).buyToken_Qdy("2",testAC6.address);
   await expect(await Pool.tradingEnabled()).to.equal(true);
   console.log(await Pool.tradingEnabled());
   await expect(TestToken.balanceOf(testAC6.address)!="0").to.equal(true);
@@ -590,12 +590,12 @@ it("should not allow any trade to go through while the voting is being conducted
   await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
   await expect(Pool.connect(testAC2).removeLP()).to.be.reverted;
   await USD2.connect(testAC6).approve(Pool.address,"1000");
-  await expect(Pool.connect(testAC6).buyToken_Qdy("2")).to.be.revertedWith("TRADE DISABLED");
+  await expect(Pool.connect(testAC6).buyToken_Qdy("2",testAC6.address)).to.be.revertedWith("TRADE DISABLED");
   await Pool.connect(testAC3).vote("1");
   await Pool.connect(testAC2).vote("1");
   await USD2.connect(testAC6).approve(Pool.address,"10000");
   await expect(Pool.connect(testAC1).removeLP()).to.be.reverted;
-  await Pool.connect(testAC6).buyToken_Qdy("10000");
+  await Pool.connect(testAC6).buyToken_Qdy("10000",testAC6.address);
   await expect(await TestToken.balanceOf(testAC6.address)!=0).to.equal(true)
 })
 

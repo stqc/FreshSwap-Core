@@ -5,9 +5,9 @@ interface poolMethods{
 
     function showTokenAddress() external view returns(address);//show the address of the token of the pool
 
-    function buyToken_Qdy(uint256) external; //buy the token from the said pool
+    function buyToken_Qdy(uint256,address) external; //buy the token from the said pool
 
-    function sellToken_qLx(uint256) external; //sell the token back to said pool
+    function sellToken_qLx(uint256,address) external; //sell the token back to said pool
 
     function viewBuyTax() external view returns (uint256); //view the buy tax
 

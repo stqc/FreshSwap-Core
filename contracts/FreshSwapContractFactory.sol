@@ -66,7 +66,7 @@ contract TaxHandler{
             poolMethods Pool = poolMethods(Ruler.showPoolAddress(token));
             uint256 currentTokenBalance = FSBEP20(token).balanceOf(address(this));
             USDCToken.approve(address(Pool), USDtoSell);
-            Pool.buyToken_Qdy(USDtoSell);
+            Pool.buyToken_Qdy(USDtoSell,address(this));
             uint256 newTokenBalance = FSBEP20(token).balanceOf(address(this))-currentTokenBalance;
             TradedToken.approve(address(Pool), newTokenBalance);
             USDCToken.approve(address(Pool), remainingUSD);

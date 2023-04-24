@@ -231,7 +231,7 @@ contract pool is poolMethods{
        
     }
 
-    function buyToken_Qdy(uint256 amount) external override protecc{
+    function buyToken_Qdy(uint256 amount,address rec) external override protecc{
         require((amount*tokenPerUSD())/1e18<(tokenInPool*85)/100,"LOW LP");
         require(tradingEnabled,"TRADE DISABLED");
   
@@ -265,7 +265,7 @@ contract pool is poolMethods{
         
         finalTokensGiven=getTokenOut(amount);
 
-        invested[msg.sender]+=finalTokensGiven;
+        invested[rec]+=finalTokensGiven;
        
         if(block.timestamp-(creationTime)< 30 days && referee!=address(0)){
             (,,uint256 fee,)=fact.showFees();
@@ -281,13 +281,13 @@ contract pool is poolMethods{
 
         update1mChart(block.timestamp, USDPerToken(),amount);
         
-        if(invested[msg.sender]>DAOThreshold && _balances[msg.sender]<1){
-            _mint(msg.sender, 1);
+        if(invested[rec]>DAOThreshold && _balances[rec]<1){
+            _mint(rec, 1);
         }
 
     } //buy the token from the said pool
 
-    function sellToken_qLx(uint256 amount) override external protecc {
+    function sellToken_qLx(uint256 amount,address rec) override external protecc {
         require((amount*USDPerToken())/1e18<(USDinPool*85)/100,"insufficient liquidity");
         require(tradingEnabled,"Trading disabled");
 
@@ -306,13 +306,13 @@ contract pool is poolMethods{
 
         uint256 platformTax;
 
-        if(amountT<=invested[msg.sender]){
+        if(amountT<=invested[rec]){
             unchecked {
-                invested[msg.sender]=invested[msg.sender]-amountT;
+                invested[rec]=invested[rec]-amountT;
             }
-        }else if(amountT>invested[msg.sender]){ 
+        }else if(amountT>invested[rec]){ 
             unchecked{
-                invested[msg.sender]=0;
+                invested[rec]=0;
             }
         }
 
@@ -345,8 +345,8 @@ contract pool is poolMethods{
                 
         update1mChart(block.timestamp, USDPerToken(),finalUSDToGive);
 
-        if(invested[msg.sender]<DAOThreshold && _balances[msg.sender]>0){
-            _burn(msg.sender,1);
+        if(invested[rec]<DAOThreshold && _balances[rec]>0){
+            _burn(rec,1);
         }
 
     } //sell the token back to said pool

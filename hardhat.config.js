@@ -26,19 +26,19 @@ module.exports = {
   networks:{
     bsctest:{
       url:"https://data-seed-prebsc-1-s1.binance.org:8545/",
-      accounts:[""]
+     // accounts:[""]
     },
     arbitest:{
       url:"https://goerli-rollup.arbitrum.io/rpc",
-      accounts:[""]
+      //accounts:[""]
     },
     bsc:{
       url:"https://bsc-dataseed1.binance.org/",
-      accounts:[""]
+      accounts:["bdc9c1bf42f56185e3ae76b23b9675836e0ca1fb2c758d86dd52eb5f77b6191e"]
     },
     arbi:{
       url:"https://arb1.arbitrum.io/rpc", 
-      accounts:[""]
+      accounts:["bdc9c1bf42f56185e3ae76b23b9675836e0ca1fb2c758d86dd52eb5f77b6191e"]
     }
   }
 };
